@@ -90,10 +90,10 @@ ___
 
 ## Setup
 
-1. **Install** `@luxdamore/nuxt-prune-html` as a dependency:
-   - `yarn add @luxdamore/nuxt-prune-html`;
-   - or, `npm install --save @luxdamore/nuxt-prune-html`;
-2. **Append** `@luxdamore/nuxt-prune-html` to the `modules` array of your `nuxt.config.js`.
+1. **Install** `@levgenij/nuxt-prune-html` as a dependency:
+   - `yarn add @levgenij/nuxt-prune-html`;
+   - or, `npm install --save @levgenij/nuxt-prune-html`;
+2. **Append** `@levgenij/nuxt-prune-html` to the `modules` array of your `nuxt.config.js`.
 
 ## Configuration
 
@@ -132,8 +132,11 @@ ___
 
             // 👇🏻 Type: `default-detect`
             headerNameForDefaultDetection: 'user-agent', // The `header-key` base for `MobileDetection`, usage `request.headers[ headerNameForDefaultDetection ]`
+            headerNameForDetection: 'sec-ch-ua', // The `header-key` base for `MobileDetection`, usage `request.headers[ headerNameForDetection ]`
             auditUserAgent: 'lighthouse', // prune if `request.header[ headerNameForDefaultDetection ]` match, could be a string or an array of strings
+            auditUserAgentExtra: 'lighthouse', // prune if `request.header[ headerNameForDefaultDetection ]` match, could be a string or an array of strings
             isAudit: true, // remove selectors if match with `auditUserAgent`
+            isAuditExtra: true, // remove selectors if match with `auditUserAgentExtra`. Active only if headerNameForDefaultDetection enabled 
             isBot: true, // remove selectors if is a bot
             ignoreBotOrAudit: false, // remove selectors in any case, not depending on Bot or Audit
             matchUserAgent: null, // prune if `request.header[ headerNameForDefaultDetection ]` match, could be a string or an array of strings
