@@ -1,33 +1,25 @@
 # 🔌⚡ Nuxt Prune HTML
 
 [![Code Quality][quality-src]][quality-href]
-[![Downloads][npm-downloads-src]][npm-downloads-href]
 [![Dependencies][dependencies-src]][dependencies-href]
-[![Circle CI][circle-ci-src]][circle-ci-href]
 [![Version][npm-version-src]][npm-version-href]
-[![Donate][paypal-donate-src]][paypal-donate-href]
 
 [quality-src]: https://img.shields.io/badge/code%20quality-A-informational?style=flat
 [quality-href]: https://luxdamore.github.io/nuxt-prune-html/
 
-[npm-downloads-src]: https://img.shields.io/npm/dt/@luxdamore/nuxt-prune-html.svg?style=flat&color=darkgreen
-[npm-downloads-href]: https://npmjs.com/package/@luxdamore/nuxt-prune-html
-
 [dependencies-src]: https://img.shields.io/badge/dependencies-up%20to%20date-darkgreen.svg?style=flat
-[dependencies-href]: https://npmjs.com/package/@luxdamore/nuxt-prune-html
+[dependencies-href]: https://npmjs.com/package/@levgenij/nuxt-prune-html
 
-[circle-ci-src]: https://img.shields.io/circleci/project/github/LuXDAmore/nuxt-prune-html.svg?style=flat&color=darkgreen
-[circle-ci-href]: https://circleci.com/gh/LuXDAmore/nuxt-prune-html
+[npm-version-src]: https://img.shields.io/npm/v/@levgenij/nuxt-prune-html/latest.svg?style=flat&color=darkorange&label=version
+[npm-version-href]: https://npmjs.com/package/@levgenij/nuxt-prune-html
 
-[npm-version-src]: https://img.shields.io/npm/v/@luxdamore/nuxt-prune-html/latest.svg?style=flat&color=darkorange&label=version
-[npm-version-href]: https://npmjs.com/package/@luxdamore/nuxt-prune-html
-
-[paypal-donate-src]: https://img.shields.io/badge/paypal-donate-black.svg?style=flat
-[paypal-donate-href]: https://www.paypal.me/luxdamore
-[patreon-donate-href]: https://www.patreon.com/luxdamore
-[kofi-donate-href]: https://ko-fi.com/luxdamore
+> **Fork of [LuXDAmore/nuxt-prune-html](https://github.com/LuXDAmore/nuxt-prune-html)**
 
 > Nuxt module to prune html before sending it to the browser (it removes elements matching CSS selector(s)), useful for boosting performance showing a different HTML for bots/audits by removing all the scripts with dynamic rendering.
+
+> ⚠️ **Important**: This module has been **completely rewritten for Nuxt 3+** and is **no longer compatible with Nuxt 2**. 
+> - For **Nuxt 2**, please use version `2.x` of this module
+> - For **Nuxt 3+**, use version `3.x` (current version)
 
 ## 💘 Motivation
 
@@ -56,7 +48,7 @@ Usually, with **less assets, resources and html** to download, the number of url
 
 **Cons.:**
 
-- No [`SPA routing`](https://nuxtjs.org/docs/2.x/concepts/server-side-rendering/#server-side-rendering-steps-with-nuxtjs) on `client-side` for **bots and audits**;
+- No [`SPA routing`](https://nuxtjs.org/docs/getting-started/routing) on `client-side` for **bots and audits**;
 - No [`hydration`](https://ssr.vuejs.org/guide/hydration.html) on `client-side` for **bots and audits**:
   - ex. [`vue-lazy-hydration`](https://github.com/maoberlehner/vue-lazy-hydration) need **Javascript client-side code** to trigger _hydrateOnInteraction_, _hydrateWhenIdle_ or _hydrateWhenVisible_;
 - No [`<client-only>` components](https://nuxtjs.org/api/components-client-only/);
@@ -88,12 +80,17 @@ ___
 
 ___
 
+## Requirements
+
+- **Nuxt 3+** (this module is not compatible with Nuxt 2)
+- Node.js 18+ (required by Nuxt 3)
+
 ## Setup
 
 1. **Install** `@levgenij/nuxt-prune-html` as a dependency:
    - `yarn add @levgenij/nuxt-prune-html`;
    - or, `npm install --save @levgenij/nuxt-prune-html`;
-2. **Append** `@levgenij/nuxt-prune-html` to the `modules` array of your `nuxt.config.js`.
+2. **Append** `@levgenij/nuxt-prune-html` to the `modules` array of your `nuxt.config.ts` (or `nuxt.config.js`).
 
 ## Configuration
 
@@ -103,15 +100,13 @@ ___
     export default {
 
         // Module - installation
-        modules: [ '@luxdamore/nuxt-prune-html' ],
+        modules: [ '@levgenij/nuxt-prune-html' ],
 
         // Module - default config
         pruneHtml: {
             enabled: false, // `true` in production
             hideGenericMessagesInConsole: false, // `false` in production
             hideErrorsInConsole: false, // deactivate the `console.error` method
-            hookRenderRoute: true, // activate `hook:render:route`
-            hookGeneratePage: true, // activate `hook:generate:page`
             selectors: [
                 // CSS selectors to prune
                 'link[rel="preload"][as="script"]',
@@ -157,8 +152,8 @@ ___
             headersToExcludePrune: [], // same as `queryParamToExcludePrune`, but it checks `request.headers`, this priority is over than `headersToPrune`
 
             // Emitted events for callbacks methods
-            onBeforePrune: null, // ({ result, [ req, res ] }) => {}, `req` and `res` are not available on `nuxt generate`
-            onAfterPrune: null, // ({ result, [ req, res ] }) => {}, `req` and `res` are not available on `nuxt generate`
+            onBeforePrune: null, // ({ result, req, res }) => {}, `req` and `res` are available when running as server (not during static generation)
+            onAfterPrune: null, // ({ result, req, res }) => {}, `req` and `res` are available when running as server (not during static generation)
         },
 
     };
@@ -214,12 +209,41 @@ N.B.: *It's possibile to mix different types.*
 
 ___
 
+### Migration from Nuxt 2
+
+If you're upgrading from Nuxt 2 to Nuxt 3, please note the following changes:
+
+**Breaking Changes:**
+- ❌ Removed `hookRenderRoute` and `hookGeneratePage` options (no longer needed)
+- ✅ The module now uses Nitro's `render:response` hook instead of Nuxt 2 hooks
+- ✅ Configuration is now stored in `runtimeConfig` instead of module options
+- ✅ The module uses ES modules and Nuxt 3 module system (`defineNuxtModule`)
+
+**What Changed:**
+- The module implementation was completely rewritten for Nuxt 3
+- HTML pruning logic is now handled by a Nitro server plugin
+- The module uses `consola` for logging instead of a custom logger
+- Request handling uses Nitro's event system (`ctx.event.node.req`)
+
+**Migration Steps:**
+1. Upgrade to Nuxt 3
+2. Remove `hookRenderRoute` and `hookGeneratePage` from your config
+3. Ensure your Nuxt config uses ES modules syntax (`export default`)
+4. Test your configuration with the new module version
+
+___
+
 ### Related things you should know
 
-- Nuxt [hooks](https://nuxtjs.org/api/configuration-hooks/), the plugin has access to `request.headers` only if the project is **running as a server** (ex. `nuxt start`)
-  - If you `generate` your site it's not possibile to check *request.headers*, so (for `types: [ 'default-detect', 'headers-exist' ]`) it **always prune**, but You can disable this behavior by setting `hookGeneratePage` to `false` (or by using the type `query-parameters`);
-- Usage with `types: [ 'default-detect' ]`, load the [MobileDetect](https://hgoebl.github.io/mobile-detect.js/) library;
-- It use [Cheerio](https://github.com/cheeriojs/cheerio), *jQuery for servers*, library to **filter and prune** the html.
+- This module uses **Nitro hooks** (`render:response`) instead of Nuxt 2 hooks (`render:route`, `generate:page`). The plugin has access to `request.headers` when running as a server (ex. `nuxt start` or `nuxt preview`)
+  - For static generation (`nuxt generate`), the module works with query parameters (`types: [ 'query-parameters' ]`) since request headers are not available during build time;
+- Usage with `types: [ 'default-detect' ]`, loads the [MobileDetect](https://hgoebl.github.io/mobile-detect.js/) library;
+- It uses [Cheerio](https://github.com/cheeriojs/cheerio), *jQuery for servers*, library to **filter and prune** the html;
+- The module is implemented as a **Nitro server plugin** using the Nuxt 3 module system:
+  - Uses `defineNuxtModule` from `nuxt/kit` for module definition
+  - Uses `addServerPlugin` to register the Nitro plugin
+  - Uses `nitro.hooks.hook('render:response')` to intercept HTML responses
+  - Configuration is stored in `nuxt.options.runtimeConfig.pruneHtml`
 
 ___
 
@@ -235,7 +259,7 @@ ___
 ## 👩🏻‍💻👨🏻‍💻 Development
 
 1. **Clone** the repository:
-   - `git clone https://github.com/LuXDAmore/nuxt-prune-html.git`;
+   - `git clone https://github.com/Levgenij/nuxt-prune-html.git`;
 2. **Install** dependencies:
    - `yarn install` (or `npm install`);
 3. **Start** a development server:
@@ -253,7 +277,7 @@ Please make sure to read the [**issue reporting checklist**](./.github/ISSUE_TEM
 
 ## 📝 Discussions
 
-We're using [**Github discussions**](https://github.com/LuXDAmore/nuxt-prune-html/discussions) as a place to connect with other members of our community.
+We're using [**Github discussions**](https://github.com/Levgenij/nuxt-prune-html/discussions) as a place to connect with other members of our community.
 *You are free to ask questions and share ideas, so enjoy yourself*.
 
 ## 👥 Contribution
@@ -266,16 +290,4 @@ Details changes for each release are documented in the [**release notes**](./CHA
 
 ### 🆓 License
 
-[MIT License](./LICENSE) // Copyright (©) 2019-now [Luca Iaconelli](https://lucaiaconelli.it)
-
-#### 💼 Hire me
-
-[![Contacts](https://img.shields.io/badge/Contact%20Me-Let's%20Talk-informational?style=social&logo=minutemailer)](https://curriculumvitae.lucaiaconelli.it)
-
-#### 💸 Are you feeling generous today?
-
-If You want to share a beer, we can be really good friends 😄
-
-__[Paypal][paypal-donate-href] // [Patreon][patreon-donate-href] // [Ko-fi][kofi-donate-href]__
-
-> ☀ _It's always a good day to be magnanimous_ - cit.
+[MIT License](./LICENSE)
